@@ -11,21 +11,17 @@ const pool = new Pool ({
 
 //makes a query to our student table, returns (array of) JS objects
 pool.query(`
-SELECT students.id as student_id, students.name as name, cohorts.name as cohort
+SELECT teachers.name as teacher, cohorts.name as cohort
 FROM students
 JOIN cohorts ON cohorts.id = cohort_id
-WHERE cohorts.name LIKE '%${process.argv[2]}%'
-LIMIT ${process.argv[3] || 5};
+JOIN assistance_requests ON students.id = student_id
+JOIN teachers ON teachers.id = teacher_id
+WHERE cohorts.name = '${process.argv[2] || 'JUL02'}'
+GROUP BY teachers.name, cohorts.name
+;
 `)
 .then(res => {
-  res.rows.forEach(user => {
-    console.log(`${user.name} has an id of ${user.student_id} and was in the ${user.cohort} cohort`);
+  res.rows.forEach(row => {
+    console.log(`${row.cohort}: ${row.teacher}`);
   })
 }).catch(err => console.error('query error', err.stack));
-
-
-
-
-
-
-
